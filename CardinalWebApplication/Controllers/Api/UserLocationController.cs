@@ -50,11 +50,11 @@ namespace CardinalWebApplication.Controllers.Api
                                              inner: _context.CurrentLayers,
                                              outerKeySelector: f => f.InitiatorId,
                                              innerKeySelector: c => c.UserId,
-                                             resultSelector: (f, c) => new
+                                             resultSelector: (f, c) => new CurrentLayerContract
                                              {
-                                                 c.UserId,
-                                                 c.TimeStamp,
-                                                 c.LayersDelimited
+                                                 UserId = c.UserId,
+                                                 TimeStamp = c.TimeStamp,
+                                                 LayersDelimited = c.LayersDelimited
                                              })
                                        .Where(d => d.TimeStamp >= (DateTime.Now.ToUniversalTime().Subtract(options.DataTimeWindow)))
                                        .ToListAsync();
@@ -65,7 +65,7 @@ namespace CardinalWebApplication.Controllers.Api
             return Ok(layers);
         }
 
-        // GET: api/UserLocation/5
+        // GET: api/UserLocation/5abc-d3e...
         [HttpGet("id")]
         public async Task<IActionResult> GetUserLocation([FromRoute] string id)
         {
@@ -91,7 +91,13 @@ namespace CardinalWebApplication.Controllers.Api
             {
                 return NoContent();
             }
-            return Ok(layer);
+            var contract = new CurrentLayerContract()
+                            {
+                                UserId = layer.UserId,
+                                TimeStamp = layer.TimeStamp,
+                                LayersDelimited = layer.LayersDelimited
+                            };
+            return Ok(contract);
         }
 
         // POST: api/UserLocation
