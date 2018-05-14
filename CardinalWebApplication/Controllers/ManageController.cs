@@ -15,6 +15,7 @@ using CardinalWebApplication.Models.ManageViewModels;
 using CardinalWebApplication.Services;
 using CardinalWebApplication.Services.Interfaces;
 using CardinalWebApplication.Models.DbContext;
+using CardinalWebApplication.Extensions;
 
 namespace CardinalWebApplication.Controllers
 {
@@ -62,6 +63,10 @@ namespace CardinalWebApplication.Controllers
                 Username = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                DateOfBirth = user.DateOfBirth,
+                Gender = user.Gender,
                 IsEmailConfirmed = user.EmailConfirmed,
                 StatusMessage = StatusMessage
             };
@@ -95,13 +100,58 @@ namespace CardinalWebApplication.Controllers
             }
 
             var phoneNumber = user.PhoneNumber;
-            if (model.PhoneNumber != phoneNumber)
+            if (model.PhoneNumber.RemoveNonNumeric() != phoneNumber)
             {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, model.PhoneNumber.RemoveNonNumeric());
                 if (!setPhoneResult.Succeeded)
                 {
                     throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
                 }
+            }
+
+            var firstName = user.FirstName;
+            if(model.FirstName != firstName)
+            {
+                user.FirstName = model.FirstName;
+                var setFirstResult = await _userManager.UpdateAsync(user);
+                if(!setFirstResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting first name for user with ID '{user.Id}'.");
+                }
+            }
+
+            var lastName = user.LastName;
+            if(model.LastName != lastName)
+            {
+                user.LastName = model.LastName;
+                var setLastResult = await _userManager.UpdateAsync(user);
+                if (!setLastResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting last name for user with ID '{user.Id}'.");
+                }
+            }
+            var dateOfBirth = user.DateOfBirth;
+            if(model.DateOfBirth != dateOfBirth)
+            {
+                user.DateOfBirth = model.DateOfBirth;
+                var setdobResult = await _userManager.UpdateAsync(user);
+                if (!setdobResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting date of birth for user with ID '{user.Id}'.");
+                }
+
+            }
+
+            var gender = user.Gender;
+            if(model.Gender != gender)
+            {
+                user.Gender = model.Gender;
+                var setGenResult = await _userManager.UpdateAsync(user);
+                if (!setGenResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting gender for user with ID '{user.Id}'.");
+                }
+
             }
 
             StatusMessage = "Your profile has been updated";
