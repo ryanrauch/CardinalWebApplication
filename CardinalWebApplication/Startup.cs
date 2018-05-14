@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using CardinalWebApplication.Data;
 using CardinalWebApplication.Models;
 using CardinalWebApplication.Services;
+using CardinalWebApplication.Services.Interfaces;
+using CardinalWebApplication.Models.DbContext;
 
 namespace CardinalWebApplication
 {
@@ -27,7 +29,7 @@ namespace CardinalWebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString(Constants.CardinalAppDbConnection)));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()

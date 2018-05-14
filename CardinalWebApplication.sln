@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27428.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardinalWebApplication", "CardinalWebApplication\CardinalWebApplication.csproj", "{7607091B-DC67-4E18-80AD-892ECDA14413}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CardinalLibrary", "..\CardinalAppXamarin\CardinalLibrary\CardinalLibrary.csproj", "{0F1FFC41-17EC-4B11-9197-1B85E4AC93EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{7607091B-DC67-4E18-80AD-892ECDA14413}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7607091B-DC67-4E18-80AD-892ECDA14413}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7607091B-DC67-4E18-80AD-892ECDA14413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F1FFC41-17EC-4B11-9197-1B85E4AC93EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F1FFC41-17EC-4B11-9197-1B85E4AC93EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F1FFC41-17EC-4B11-9197-1B85E4AC93EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F1FFC41-17EC-4B11-9197-1B85E4AC93EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
