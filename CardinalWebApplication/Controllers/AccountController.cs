@@ -15,6 +15,8 @@ using CardinalWebApplication.Models.AccountViewModels;
 using CardinalWebApplication.Services;
 using CardinalWebApplication.Services.Interfaces;
 using CardinalWebApplication.Models.DbContext;
+using CardinalLibrary;
+using CardinalWebApplication.Extensions;
 
 namespace CardinalWebApplication.Controllers
 {
@@ -222,7 +224,16 @@ namespace CardinalWebApplication.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser
+                {
+                    UserName = model.DisplayName,
+                    Email = model.Email,
+                    DateOfBirth = model.DateOfBirth,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    PhoneNumber = model.PhoneNumber.RemoveNonNumeric(),
+                    AccountType = AccountType.Regular
+                };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {

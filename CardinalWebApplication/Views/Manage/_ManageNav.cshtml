@@ -1,4 +1,5 @@
 ﻿@using CardinalWebApplication.Views.Manage
+@using CardinalWebApplication.Models.DbContext
 @inject SignInManager<ApplicationUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
