@@ -29,6 +29,7 @@ namespace CardinalWebApplication.Data
                    .HasKey(f => new { f.InitiatorId, f.TargetId });
         }
         public DbSet<ApplicationOption> ApplicationOptions { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<CurrentLayer> CurrentLayers { get; set; }
         public DbSet<FriendRequest> FriendRequests { get; set; }
         public DbSet<LocationHistory> LocationHistories { get; set; }

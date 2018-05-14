@@ -13,6 +13,7 @@ using CardinalWebApplication.Models;
 using CardinalWebApplication.Services;
 using CardinalWebApplication.Services.Interfaces;
 using CardinalWebApplication.Models.DbContext;
+using Microsoft.AspNetCore.Http;
 
 namespace CardinalWebApplication
 {
@@ -37,6 +38,10 @@ namespace CardinalWebApplication
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IHexagonal, HexagonalEquilateralScale>();
+            services.AddTransient<ILocationHistoryService, LocationHistoryService>();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMvc();
         }
