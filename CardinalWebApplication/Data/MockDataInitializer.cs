@@ -26,6 +26,27 @@ namespace CardinalWebApplication.Data
             _hexagonal = serviceProvider.GetRequiredService<IHexagonal>();
             _locationHistoryService = serviceProvider.GetRequiredService<ILocationHistoryService>();
 
+            var option = await _context.ApplicationOptions
+                                       .OrderByDescending(a => a.OptionsDate)
+                                       .FirstOrDefaultAsync();
+            if(option == null)
+            {
+                var appOption = new ApplicationOption()
+                {
+                    OptionsDate = DateTime.Now.ToUniversalTime(),
+                    DataTimeWindow = TimeSpan.FromHours(12),
+                    EndUserLicenseAgreementSource = "http://www.google.com/",
+                    TermsConditionsSource = "http://www.google.com/",
+                    PrivacyPolicySource = "http://www.google.com/",
+                    Version = 1,
+                    VersionMajor = 0,
+                    VersionMinor = 0
+                };
+                await _context.ApplicationOptions
+                              .AddAsync(appOption);
+                await _context.SaveChangesAsync();
+            }
+
             //create the mock users if they don't exist
             var mock = await _userManager.FindByEmailAsync("Mock01@RyanRauch.com");
             if (mock == null)
