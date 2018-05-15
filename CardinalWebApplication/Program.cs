@@ -15,11 +15,8 @@ namespace CardinalWebApplication
     {
         public static void Main(string[] args)
         {
-#if DEBUG
-            BuildWebHost(args).Seed().Run();
-#else
+            //BuildWebHost(args).Seed().Run();
             BuildWebHost(args).Run();
-#endif
         }
 
         public static IWebHost BuildWebHost(string[] args) =>

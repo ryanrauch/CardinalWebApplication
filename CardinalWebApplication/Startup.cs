@@ -30,7 +30,8 @@ namespace CardinalWebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString(Constants.CardinalAppDbConnection)));
+                options.UseSqlServer(Configuration[Constants.CardinalAppDbConnection]));
+                //options.UseSqlServer(Configuration.GetConnectionString(Constants.CardinalAppDbConnection)));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
