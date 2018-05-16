@@ -53,7 +53,7 @@ namespace CardinalWebApplication.Controllers.Api
                                              resultSelector: (f, c) => new CurrentLayerContract
                                              {
                                                  UserId = c.UserId,
-                                                 TimeStamp = c.TimeStamp,
+                                                 TimeStamp = c.TimeStamp.ToUniversalTime(),
                                                  LayersDelimited = c.LayersDelimited
                                              })
                                        .Where(d => d.TimeStamp >= (DateTime.Now.ToUniversalTime().Subtract(options.DataTimeWindow)))

@@ -62,6 +62,10 @@ namespace CardinalWebApplication.Services
             double lon_right = center.Longitude + _flatHalfRadius;
             // positions start with top-left, rotating clockwise
             Polygon poly = new Polygon();
+            if(poly.Positions == null)
+            {
+                poly.Positions = new List<Position>();
+            }
             poly.Positions.Add(new Position(lat_top, lon_left));
             poly.Positions.Add(new Position(lat_top, lon_right));
             poly.Positions.Add(new Position(center.Latitude, center.Longitude + _flatRadius));
@@ -147,6 +151,50 @@ namespace CardinalWebApplication.Services
                 result += CreateTagFromCoordinates(CenterLocation, i) + Constants.LayerDelimChar;
             }
             return result.TrimEnd(Constants.LayerDelimChar);
+        }
+
+        public int CalculateLayerFromCameraPositionZoom(double zoom)
+        {
+            if (zoom > 13)
+                return 1;
+            else if (zoom > 12.25)
+                return 3;
+            else if (zoom > 11)
+                return 9;
+            else if (zoom > 9.25)
+                return 27;
+            else if (zoom > 8)
+                return 81;
+            else if (zoom > 6)
+                return 243;
+            else if (zoom > 4.5)
+                return 729;
+            return 2187;
+        }
+
+        public Polygon PolygonFromDelimited(String delimited)
+        {
+            var split = delimited.Split(Constants.BoundingBoxDelim);
+            if(split.Count() != 3)
+            {
+                throw new ArgumentException(delimited + " could not be split into layer, latitude, and longitude.");
+            }
+            int layer = Convert.ToInt32(split[0]);
+            double lat = Convert.ToDouble(split[1]);
+            double lon = Convert.ToDouble(split[2]);
+
+            SetLayer(layer);
+            if (lon % 2 == 0)
+            {
+                return HexagonalPolygon(new Position(lat * _flatHeight,
+                                                     lon * _flatWidth));
+            }
+            else
+            {
+                // if column number is odd, shift down half-height
+                return HexagonalPolygon(new Position(lat * _flatHeight - _flatHalfHeight,
+                                                     lon * _flatWidth));
+            }
         }
     }
 }

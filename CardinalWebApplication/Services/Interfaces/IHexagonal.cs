@@ -15,5 +15,7 @@ namespace CardinalWebApplication.Services.Interfaces
         void SetLayer(int layer);
         void Initialize(double latitude, double longitude, int layer);
         String AllLayersDelimited();
+        int CalculateLayerFromCameraPositionZoom(double zoom);
+        Polygon PolygonFromDelimited(String delimited);
     }
 }
