@@ -23,9 +23,11 @@ namespace CardinalWebApplication.Controllers.Api
         private readonly IServiceProvider _serviceProvider;
 
         public MockDataController(
+            IHttpContextAccessor httpContextAccessor,
             IServiceProvider serviceProvider,
             ApplicationDbContext context)
         {
+            _httpContextAccessor = httpContextAccessor;
             _serviceProvider = serviceProvider;
             _context = context;
         }
