@@ -20,12 +20,24 @@ namespace CardinalWebApplication.Data
         private IHexagonal _hexagonal { get; set; }
         private ILocationHistoryService _locationHistoryService { get; set; }
 
+        private const int NUMBEROFMOCKUSERS = 25;
+
         public async Task InitializeMockUsers(IServiceProvider serviceProvider, MockDataInitializeContract mdata = null)
         {
             _userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             _context = serviceProvider.GetRequiredService<ApplicationDbContext>();
             _hexagonal = serviceProvider.GetRequiredService<IHexagonal>();
             _locationHistoryService = serviceProvider.GetRequiredService<ILocationHistoryService>();
+
+            if(mdata == null)
+            {
+                mdata = new MockDataInitializeContract()
+                {
+                    Email = "rauch.ryan@gmail.com",
+                    Latitude = 30.3986877,
+                    Longitude = -97.72359399999999
+                };
+            }
 
             var option = await _context.ApplicationOptions
                                        .OrderByDescending(a => a.OptionsDate)
@@ -52,7 +64,7 @@ namespace CardinalWebApplication.Data
             var mock = await _userManager.FindByEmailAsync("Mock01@RyanRauch.com");
             if (mock == null)
             {
-                for (int i = 1; i <= 25; ++i)
+                for (int i = 1; i <= NUMBEROFMOCKUSERS; ++i)
                 {
                     string mockFirst = String.Format("Mock{0}", i.ToString("D2"));
                     string mockLast = String.Format("Data{0}", i.ToString("D2"));
@@ -76,17 +88,12 @@ namespace CardinalWebApplication.Data
 
             //update current location data for mock users
             /////////////////////////////////////////////
-            double latmin = 30.3740;
-            double latmax = 30.4251;
-            double lonmin = -97.7501;
-            double lonmax = -97.7001;
-            if(mdata != null)
-            {
-                latmin = mdata.Latitude - 0.1d;
-                latmax = mdata.Latitude + 0.1d;
-                lonmin = mdata.Longitude - 0.025d;
-                lonmax = mdata.Longitude + 0.025d;
-            }
+
+            double latmin = mdata.Latitude - 0.01d;
+            double latmax = mdata.Latitude + 0.01d;
+            double lonmin = mdata.Longitude - 0.0025d;
+            double lonmax = mdata.Longitude + 0.0025d;
+
             Random randomLat = new Random((int)DateTime.Now.Ticks);
             Random randomLon = new Random((int)DateTime.Now.Ticks);
             Random randomMin = new Random((int)DateTime.Now.Ticks);
@@ -98,9 +105,6 @@ namespace CardinalWebApplication.Data
                 DateTime timeStamp = DateTime.Now.Subtract(TimeSpan.FromMinutes(randomMin.NextDouble() * 60));
                 double lat = randomLat.NextDouble() * (latmax - latmin) + latmin;
                 double lon = randomLon.NextDouble() * (lonmax - lonmin) + lonmin;
-                //user.CurrentTimeStamp = timeStamp;
-                //user.CurrentLatitude = lat;
-                //user.CurrentLongitude = lon;
                 await _locationHistoryService.DeleteAllLocationHistoryAsync(user.Id);
                 await _locationHistoryService.CreateLocationHistoryAsync(user.Id, lat, lon, timeStamp);
                 _hexagonal.Initialize(lat, lon, _hexagonal.Layers[0]);
@@ -127,11 +131,11 @@ namespace CardinalWebApplication.Data
             //establish friend-requests for all of the mock users
             //////////////////////////////////////////
             var ryan = await _context.ApplicationUsers
-                                     .FirstOrDefaultAsync(a => a.Email.Equals("rauch.ryan@gmail.com", StringComparison.OrdinalIgnoreCase));
-            if(mdata != null)
+                                     .FirstOrDefaultAsync(a => a.Email.Equals(mdata.Email, StringComparison.OrdinalIgnoreCase));
+            if(ryan == null)
             {
                 ryan = await _context.ApplicationUsers
-                                     .FirstOrDefaultAsync(a => a.Email.Equals(mdata.Email, StringComparison.OrdinalIgnoreCase));
+                                     .FirstOrDefaultAsync(a => a.Email.Equals("rauch.ryan@gmail.com", StringComparison.OrdinalIgnoreCase));
             }
             mockedUsers = await _context.ApplicationUsers
                                         .Where(a => a.AccountType.Equals(AccountType.MockedData))
