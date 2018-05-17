@@ -1,4 +1,5 @@
 ﻿using CardinalLibrary;
+using CardinalLibrary.DataContracts;
 using CardinalWebApplication.Extensions;
 using CardinalWebApplication.Models.DbContext;
 using CardinalWebApplication.Services.Interfaces;
@@ -19,7 +20,7 @@ namespace CardinalWebApplication.Data
         private IHexagonal _hexagonal { get; set; }
         private ILocationHistoryService _locationHistoryService { get; set; }
 
-        public async Task InitializeMockUsers(IServiceProvider serviceProvider)
+        public async Task InitializeMockUsers(IServiceProvider serviceProvider, MockDataInitializeContract mdata = null)
         {
             _userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             _context = serviceProvider.GetRequiredService<ApplicationDbContext>();
@@ -79,6 +80,13 @@ namespace CardinalWebApplication.Data
             double latmax = 30.4251;
             double lonmin = -97.7501;
             double lonmax = -97.7001;
+            if(mdata != null)
+            {
+                latmin = mdata.Latitude - 0.1d;
+                latmax = mdata.Latitude + 0.1d;
+                lonmin = mdata.Longitude - 0.025d;
+                lonmax = mdata.Longitude + 0.025d;
+            }
             Random randomLat = new Random((int)DateTime.Now.Ticks);
             Random randomLon = new Random((int)DateTime.Now.Ticks);
             Random randomMin = new Random((int)DateTime.Now.Ticks);
@@ -120,6 +128,11 @@ namespace CardinalWebApplication.Data
             //////////////////////////////////////////
             var ryan = await _context.ApplicationUsers
                                      .FirstOrDefaultAsync(a => a.Email.Equals("rauch.ryan@gmail.com", StringComparison.OrdinalIgnoreCase));
+            if(mdata != null)
+            {
+                ryan = await _context.ApplicationUsers
+                                     .FirstOrDefaultAsync(a => a.Email.Equals(mdata.Email, StringComparison.OrdinalIgnoreCase));
+            }
             mockedUsers = await _context.ApplicationUsers
                                         .Where(a => a.AccountType.Equals(AccountType.MockedData))
                                         .ToListAsync();
