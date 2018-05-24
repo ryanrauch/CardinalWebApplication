@@ -37,6 +37,7 @@ namespace CardinalWebApplication.Controllers.Api
             _userManager = userManager;
         }
 
+        //POST: api/Token
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Create(string username, string password, bool persistent)

@@ -47,7 +47,9 @@ namespace CardinalWebApplication.Controllers.Api
                                                 LastName = a.LastName,
                                                 DateOfBirth = a.DateOfBirth,
                                                 Gender = a.Gender,
-                                                AccountType = a.AccountType
+                                                AccountType = a.AccountType,
+                                                PhoneNumber  = a.PhoneNumber,
+                                                Email = a.Email
                                             })
                                             .ToListAsync();
             if(users == null || users.Count == 0)
@@ -87,7 +89,9 @@ namespace CardinalWebApplication.Controllers.Api
                                 LastName = user.LastName,
                                 DateOfBirth = user.DateOfBirth,
                                 Gender = user.Gender,
-                                AccountType = user.AccountType
+                                AccountType = user.AccountType,
+                                PhoneNumber = user.PhoneNumber,
+                                Email = user.Email
                             };
             return Ok(contract);
         }

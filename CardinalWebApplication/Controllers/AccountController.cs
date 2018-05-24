@@ -237,8 +237,11 @@ namespace CardinalWebApplication.Controllers
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     PhoneNumber = model.PhoneNumber.RemoveNonNumeric(),
+                    Gender = model.Gender,
                     AccountType = AccountType.Regular
                 };
+                //TODO: remove duplication between this and
+                //      RegistrationController::PostRegistration
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -254,7 +257,6 @@ namespace CardinalWebApplication.Controllers
                 }
                 AddErrors(result);
             }
-
             // If we got this far, something failed, redisplay form
             return View(model);
         }
