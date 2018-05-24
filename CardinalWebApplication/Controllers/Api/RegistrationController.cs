@@ -65,9 +65,9 @@ namespace CardinalWebApplication.Controllers.Api
                 var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
                 await _emailSender.SendEmailConfirmationAsync(user.Email, callbackUrl);
 
-                return Ok();
+                return Ok(true);
             }
-            return BadRequest(user.UserName);
+            return Ok(false);
         }
     }
 }
