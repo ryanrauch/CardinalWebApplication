@@ -33,15 +33,18 @@ namespace CardinalWebApplication
                 options.UseSqlServer(Configuration[Constants.CardinalAppDbConnection]));
                 //options.UseSqlServer(Configuration.GetConnectionString(Constants.CardinalAppDbConnection)));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(/*config =>
+            {
+                config.SignIn.RequireConfirmedEmail = true;
+            }*/)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
             // Add application services.
-            services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IHexagonal, HexagonalEquilateralScale>();
             services.AddTransient<ILocationHistoryService, LocationHistoryService>();
-
+            
+            services.AddSingleton<IEmailSender, EmailSender>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMvc();

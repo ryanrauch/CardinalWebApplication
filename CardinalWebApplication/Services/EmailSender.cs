@@ -1,4 +1,8 @@
 ﻿using CardinalWebApplication.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +14,31 @@ namespace CardinalWebApplication.Services
     // For more details see https://go.microsoft.com/fwlink/?LinkID=532713
     public class EmailSender : IEmailSender
     {
-        public Task SendEmailAsync(string email, string subject, string message)
+        private readonly IConfiguration _configuration;
+
+        public EmailSender(
+            IConfiguration configuration)
         {
-            return Task.CompletedTask;
+            _configuration = configuration;
+        }
+
+        public async Task SendEmailAsync(string email, string subject, string message)
+        {
+            await Execute(_configuration[Constants.SendGridKey], subject, message, email);
+        }
+
+        public async Task Execute(string apiKey, string subject, string message, string email)
+        {
+            var client = new SendGridClient(apiKey);
+            var msg = new SendGridMessage()
+            {
+                From = new EmailAddress("admin@cardinal.software", "Cardinal Admin"),
+                Subject = subject,
+                PlainTextContent = message,
+                HtmlContent = message
+            };
+            msg.AddTo(new EmailAddress(email));
+            await client.SendEmailAsync(msg);
         }
     }
 }

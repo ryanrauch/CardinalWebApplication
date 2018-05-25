@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using CardinalWebApplication.Services.Interfaces;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using CardinalWebApplication.Services;
-using CardinalWebApplication.Services.Interfaces;
 
 namespace CardinalWebApplication.Services
 {
