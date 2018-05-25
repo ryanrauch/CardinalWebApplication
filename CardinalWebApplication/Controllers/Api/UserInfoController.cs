@@ -68,21 +68,12 @@ namespace CardinalWebApplication.Controllers.Api
                 return BadRequest(ModelState);
             }
             var target = _httpContextAccessor.CurrentUserId();
-            if (id.Equals(Guid.Empty.ToString()))
+            var friendPermission = await _context.FriendRequests
+                                                    .SingleOrDefaultAsync(s => s.TargetId.Equals(target)
+                                                                            && s.InitiatorId.Equals(id));
+            if (friendPermission == null)
             {
-                // Requesting current user's own information
-                id = target;
-            }
-            else
-            {
-                // otherwise, check that the user has right's to view profile.
-                var friendPermission = await _context.FriendRequests
-                                                     .SingleOrDefaultAsync(s => s.TargetId.Equals(target)
-                                                                                && s.InitiatorId.Equals(id));
-                if (friendPermission == null)
-                {
-                    return NotFound();
-                }
+                return NotFound();
             }
             var user = await _context.ApplicationUsers
                                      .SingleOrDefaultAsync(s => s.Id.Equals(id));
