@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CardinalWebApplication.Models;
 using Microsoft.AspNetCore.Mvc;
-using CardinalWebApplication.Models;
+using System.Diagnostics;
 
 namespace CardinalWebApplication.Controllers
 {
@@ -18,14 +14,18 @@ namespace CardinalWebApplication.Controllers
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
-
             return View();
         }
 
         public IActionResult Contact()
         {
             ViewData["Message"] = "Cardinal Software, LLC";
+            return View();
+        }
 
+        public IActionResult Policies()
+        {
+            ViewData["Message"] = "Privacy Policy";
             return View();
         }
 
