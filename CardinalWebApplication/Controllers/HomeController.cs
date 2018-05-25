@@ -24,7 +24,7 @@ namespace CardinalWebApplication.Controllers
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Message"] = "Cardinal Software, LLC";
 
             return View();
         }
