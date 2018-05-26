@@ -27,11 +27,19 @@ namespace CardinalWebApplication.Data
                    .HasKey(c => c.UserId);
             builder.Entity<FriendRequest>()
                    .HasKey(f => new { f.InitiatorId, f.TargetId });
+
+            builder.Entity<Zone>()
+                   .HasKey(z => z.ZoneID);
+            builder.Entity<ZoneShape>()
+                   .HasKey(z => z.ZoneShapeID);
         }
         public DbSet<ApplicationOption> ApplicationOptions { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<CurrentLayer> CurrentLayers { get; set; }
         public DbSet<FriendRequest> FriendRequests { get; set; }
         public DbSet<LocationHistory> LocationHistories { get; set; }
+
+        public DbSet<Zone> Zones { get; set; }
+        public DbSet<ZoneShape> ZoneShapes { get; set; }
     }
 }

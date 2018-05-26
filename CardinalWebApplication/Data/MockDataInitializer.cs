@@ -29,7 +29,9 @@ namespace CardinalWebApplication.Data
             _hexagonal = serviceProvider.GetRequiredService<IHexagonal>();
             _locationHistoryService = serviceProvider.GetRequiredService<ILocationHistoryService>();
 
-            if(mdata == null)
+            int i = 0;
+
+            if (mdata == null)
             {
                 mdata = new MockDataInitializeContract()
                 {
@@ -64,7 +66,7 @@ namespace CardinalWebApplication.Data
             var mock = await _userManager.FindByEmailAsync("Mock01@RyanRauch.com");
             if (mock == null)
             {
-                for (int i = 1; i <= NUMBEROFMOCKUSERS; ++i)
+                for (i = 1; i <= NUMBEROFMOCKUSERS; ++i)
                 {
                     string mockFirst = String.Format("Mock{0}", i.ToString("D2"));
                     string mockLast = String.Format("Data{0}", i.ToString("D2"));
@@ -162,6 +164,91 @@ namespace CardinalWebApplication.Data
                     friendRequest.TimeStamp = timeStamp;
                 }
             }
+            await _context.SaveChangesAsync();
+
+
+            ///////////////////////////////////////////////////
+            // Zone and ZoneShape Data
+            ///////////////////////////////////////////////////
+            // West 6th
+            string zoneName = "West 6th";
+            var currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
+            if(currentZone == null)
+            {
+                currentZone = new Zone() { Description = zoneName, ARGBFill= "8095C6E4", Type=ZoneType.BarDistrict };
+                await _context.Zones.AddAsync(currentZone);
+                await _context.SaveChangesAsync();
+            }
+            currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
+            var currentZoneShapes = await _context.ZoneShapes.Where(z => z.ParentZoneId.Equals(currentZone.ZoneID)).ToArrayAsync();
+            _context.ZoneShapes.RemoveRange(currentZoneShapes);
+            await _context.SaveChangesAsync();
+            i = 0;
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.273021, Longitude = -97.749524 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.271798, Longitude = -97.745204 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.268091, Longitude = -97.746655 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.269296, Longitude = -97.750918 });
+            await _context.SaveChangesAsync();
+            // Rockrose-domain
+            zoneName = "Rockrose";
+            currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
+            if (currentZone == null)
+            {
+                currentZone = new Zone() { Description = zoneName, ARGBFill="80FF0000", Type=ZoneType.BarDistrict };
+                await _context.Zones.AddAsync(currentZone);
+                await _context.SaveChangesAsync();
+            }
+            currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
+            currentZoneShapes = await _context.ZoneShapes.Where(z => z.ParentZoneId.Equals(currentZone.ZoneID)).ToArrayAsync();
+            _context.ZoneShapes.RemoveRange(currentZoneShapes);
+            await _context.SaveChangesAsync();
+            i = 0;
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.39983, Longitude = -97.723719 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.40182, Longitude = -97.722989 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.402172, Longitude = -97.724245 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.403236, Longitude = -97.72374 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.402606, Longitude = -97.721659 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.399562, Longitude = -97.723011 });
+            await _context.SaveChangesAsync();
+            // Warehouse District
+            zoneName = "Warehouse District";
+            currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
+            if (currentZone == null)
+            {
+                currentZone = new Zone() { Description = zoneName, ARGBFill = "80D2B7D8", Type = ZoneType.BarDistrict };
+                await _context.Zones.AddAsync(currentZone);
+                await _context.SaveChangesAsync();
+            }
+            currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
+            currentZoneShapes = await _context.ZoneShapes.Where(z => z.ParentZoneId.Equals(currentZone.ZoneID)).ToArrayAsync();
+            _context.ZoneShapes.RemoveRange(currentZoneShapes);
+            await _context.SaveChangesAsync();
+            i = 0;
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.269036, Longitude = -97.74634 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.268019, Longitude = -97.742779 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.26522, Longitude = -97.743823 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.266814, Longitude = -97.749481 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.269279, Longitude = -97.750911 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.268091, Longitude = -97.746655 });
+            await _context.SaveChangesAsync();
+            // 2nd Street
+            zoneName = "2nd Street";
+            currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
+            if (currentZone == null)
+            {
+                currentZone = new Zone() { Description = zoneName, ARGBFill = "806F7FBD", Type = ZoneType.BarDistrict };
+                await _context.Zones.AddAsync(currentZone);
+                await _context.SaveChangesAsync();
+            }
+            currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
+            currentZoneShapes = await _context.ZoneShapes.Where(z => z.ParentZoneId.Equals(currentZone.ZoneID)).ToArrayAsync();
+            _context.ZoneShapes.RemoveRange(currentZoneShapes);
+            await _context.SaveChangesAsync();
+            i = 0;
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.266517, Longitude = -97.748421 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.26522, Longitude = -97.743823 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.263367, Longitude = -97.744544 });
+            _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.264683, Longitude = -97.749128 });
             await _context.SaveChangesAsync();
         }
     }
