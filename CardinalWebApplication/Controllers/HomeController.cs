@@ -13,7 +13,7 @@ namespace CardinalWebApplication.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData["Message"] = "Cardinal is still in the product development phase.";
             return View();
         }
 
