@@ -32,6 +32,11 @@ namespace CardinalWebApplication.Data
                    .HasKey(z => z.ZoneID);
             builder.Entity<ZoneShape>()
                    .HasKey(z => z.ZoneShapeID);
+
+            builder.Entity<FriendGroup>()
+                   .HasKey(f => f.ID);
+            builder.Entity<FriendGroupUser>()
+                   .HasKey(f => f.ID);
         }
         public DbSet<ApplicationOption> ApplicationOptions { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
@@ -41,5 +46,8 @@ namespace CardinalWebApplication.Data
 
         public DbSet<Zone> Zones { get; set; }
         public DbSet<ZoneShape> ZoneShapes { get; set; }
+
+        public DbSet<FriendGroup> FriendGroups { get; set; }
+        public DbSet<FriendGroupUser> FriendGroupUsers { get; set; }
     }
 }

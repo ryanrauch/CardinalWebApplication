@@ -250,6 +250,12 @@ namespace CardinalWebApplication.Data
             _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.263367, Longitude = -97.744544 });
             _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.264683, Longitude = -97.749128 });
             await _context.SaveChangesAsync();
+
+            ///////////////////////////////////////////////////
+            // FriendGroup data
+            ///////////////////////////////////////////////////
+
+
         }
     }
 }

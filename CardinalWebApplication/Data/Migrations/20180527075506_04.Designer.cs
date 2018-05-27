@@ -12,9 +12,10 @@ using System;
 namespace CardinalWebApplication.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180527075506_04")]
+    partial class _04
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,8 +140,6 @@ namespace CardinalWebApplication.Data.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("UserID");
-
                     b.ToTable("FriendGroups");
                 });
 
@@ -149,15 +148,15 @@ namespace CardinalWebApplication.Data.Migrations
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("FriendID");
+                    b.Property<string>("GroupID");
 
-                    b.Property<Guid>("GroupID");
+                    b.Property<Guid?>("GroupID1");
+
+                    b.Property<Guid>("OwnerID");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("FriendID");
-
-                    b.HasIndex("GroupID");
+                    b.HasIndex("GroupID1");
 
                     b.ToTable("FriendGroupUsers");
                 });
@@ -352,23 +351,11 @@ namespace CardinalWebApplication.Data.Migrations
                         .HasForeignKey("UserId1");
                 });
 
-            modelBuilder.Entity("CardinalWebApplication.Models.DbContext.FriendGroup", b =>
-                {
-                    b.HasOne("CardinalWebApplication.Models.DbContext.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID");
-                });
-
             modelBuilder.Entity("CardinalWebApplication.Models.DbContext.FriendGroupUser", b =>
                 {
-                    b.HasOne("CardinalWebApplication.Models.DbContext.ApplicationUser", "Friend")
-                        .WithMany()
-                        .HasForeignKey("FriendID");
-
                     b.HasOne("CardinalWebApplication.Models.DbContext.FriendGroup", "Group")
                         .WithMany()
-                        .HasForeignKey("GroupID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("GroupID1");
                 });
 
             modelBuilder.Entity("CardinalWebApplication.Models.DbContext.FriendRequest", b =>
