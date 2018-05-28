@@ -43,7 +43,8 @@ namespace CardinalWebApplication
             // Add application services.
             services.AddTransient<IHexagonal, HexagonalEquilateralScale>();
             services.AddTransient<ILocationHistoryService, LocationHistoryService>();
-            
+
+            services.AddSingleton<IZoneBoundaryService, ZoneBoundaryService>();
             services.AddSingleton<IEmailSender, EmailSender>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

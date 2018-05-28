@@ -23,17 +23,20 @@ namespace CardinalWebApplication.Controllers.Api
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHexagonal _hexagonal;
         private readonly ILocationHistoryService _locationHistoryService;
+        private readonly IZoneBoundaryService _zoneBoundaryService;
 
         public UserLocationController(
             ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
             IHexagonal hexagonal,
-            ILocationHistoryService locationHistoryService)
+            ILocationHistoryService locationHistoryService,
+            IZoneBoundaryService zoneBoundaryService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _hexagonal = hexagonal;
             _locationHistoryService = locationHistoryService;
+            _zoneBoundaryService = zoneBoundaryService;
         }
 
         // GET: api/UserLocation
@@ -54,7 +57,8 @@ namespace CardinalWebApplication.Controllers.Api
                                              {
                                                  UserId = c.UserId,
                                                  TimeStamp = c.TimeStamp.ToUniversalTime(),
-                                                 LayersDelimited = c.LayersDelimited
+                                                 LayersDelimited = c.LayersDelimited,
+                                                 CurrentZoneId = c.CurrentZoneId
                                              })
                                        .Where(d => d.TimeStamp >= (DateTime.Now.ToUniversalTime().Subtract(options.DataTimeWindow)))
                                        .ToListAsync();
@@ -95,7 +99,8 @@ namespace CardinalWebApplication.Controllers.Api
                             {
                                 UserId = layer.UserId,
                                 TimeStamp = layer.TimeStamp,
-                                LayersDelimited = layer.LayersDelimited
+                                LayersDelimited = layer.LayersDelimited,
+                                CurrentZoneId = layer.CurrentZoneId
                             };
             return Ok(contract);
         }
@@ -116,23 +121,17 @@ namespace CardinalWebApplication.Controllers.Api
             {
                 return NotFound(gid);
             }
-            //appUser.CurrentLatitude = currentLocationPost.Latitude;
-            //appUser.CurrentLongitude = currentLocationPost.Longitude;
-            //appUser.CurrentTimeStamp = timeStamp;
             await _locationHistoryService.CreateLocationHistoryAsync(gid, 
                                                                      currentLocationPost.Latitude, 
                                                                      currentLocationPost.Longitude, 
                                                                      timeStamp);
-            //await _context.LocationHistories
-            //              .AddAsync(new LocationHistory()
-            //              {
-            //                  User = appUser,
-            //                  Latitude = currentLocationPost.Latitude,
-            //                  Longitude = currentLocationPost.Longitude,
-            //                  TimeStamp = timeStamp
-            //              });
-            _hexagonal.Initialize(currentLocationPost.Latitude, currentLocationPost.Longitude, _hexagonal.Layers[0]);
+
+            _hexagonal.Initialize(currentLocationPost.Latitude, 
+                                  currentLocationPost.Longitude, 
+                                  _hexagonal.Layers[0]);
             String layers = _hexagonal.AllLayersDelimited();
+            String currentZone = await _zoneBoundaryService.IsCoordinateInsideZone(currentLocationPost.Latitude, 
+                                                                                   currentLocationPost.Longitude);
             var currentLayer = await _context.CurrentLayers
                                              .FirstOrDefaultAsync(c => c.UserId.Equals(gid));
             if (currentLayer == null)
@@ -141,7 +140,8 @@ namespace CardinalWebApplication.Controllers.Api
                 {
                     UserId = gid,
                     LayersDelimited = layers,
-                    TimeStamp = timeStamp
+                    TimeStamp = timeStamp,
+                    CurrentZoneId = currentZone
                 });
             }
             else

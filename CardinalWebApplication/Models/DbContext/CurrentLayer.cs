@@ -8,5 +8,7 @@ namespace CardinalWebApplication.Models.DbContext
         public String UserId { get; set; }
         public DateTime TimeStamp { get; set; }
         public String LayersDelimited { get; set; }
+        public Zone CurrentZone { get; set; }
+        public String CurrentZoneId { get; set; }
     }
 }
