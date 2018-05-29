@@ -131,13 +131,6 @@ namespace CardinalWebApplication.Controllers.Api
                                   currentLocationPost.Longitude, 
                                   _hexagonal.Layers[0]);
             String layers = _hexagonal.AllLayersDelimited();
-
-            //double testlat = 30.401875;
-            //double testlon = -97.722668;
-            //Guid testCurrentZoneGuid = await _zoneBoundaryService.IsCoordinateInsideZone(ZoneType.BarDistrict,
-            //                                                             testlat,
-            //                                                             testlon);
-
             Guid currentZoneGuid = await _zoneBoundaryService.IsCoordinateInsideZone(ZoneType.BarDistrict,
                                                                                      currentLocationPost.Latitude, 
                                                                                      currentLocationPost.Longitude);
