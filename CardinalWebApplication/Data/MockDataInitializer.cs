@@ -19,8 +19,26 @@ namespace CardinalWebApplication.Data
         private UserManager<ApplicationUser> _userManager { get; set; }
         private IHexagonal _hexagonal { get; set; }
         private ILocationHistoryService _locationHistoryService { get; set; }
+        private IZoneBoundaryService _zoneBoundaryService { get; set; }
 
-        private const int NUMBEROFMOCKUSERS = 25;
+        private const int NUMBEROFMOCKUSERS = 50;
+        private const int NUMBEROFMOCKZONEUSERS = 10;
+
+        private void GetRandomZoneCoordinates(out double lat, out double lon)
+        {
+            Random r = new Random((int)DateTime.Now.Ticks);
+            switch(r.Next() % 2)
+            {
+                case 0:
+                    lat = 30.4031;
+                    lon = -97.7345;
+                    break;
+                default:
+                    lat = 30.4031;
+                    lon = -97.7345;
+                    break;
+            }
+        }
 
         public async Task InitializeMockUsers(IServiceProvider serviceProvider, MockDataInitializeContract mdata = null)
         {
@@ -28,6 +46,7 @@ namespace CardinalWebApplication.Data
             _context = serviceProvider.GetRequiredService<ApplicationDbContext>();
             _hexagonal = serviceProvider.GetRequiredService<IHexagonal>();
             _locationHistoryService = serviceProvider.GetRequiredService<ILocationHistoryService>();
+            _zoneBoundaryService = serviceProvider.GetRequiredService<IZoneBoundaryService>();
 
             int i = 0;
 
@@ -63,16 +82,16 @@ namespace CardinalWebApplication.Data
             }
 
             //create the mock users if they don't exist
-            var mock = await _userManager.FindByEmailAsync("Mock01@RyanRauch.com");
-            if (mock == null)
+            for (i = 1; i <= NUMBEROFMOCKUSERS + NUMBEROFMOCKZONEUSERS; ++i)
             {
-                for (i = 1; i <= NUMBEROFMOCKUSERS; ++i)
+                string mockFirst = String.Format("Mock{0}", i.ToString("D2"));
+                string mockLast = String.Format("Data{0}", i.ToString("D2"));
+                string mockMail = String.Format("{0}@RyanRauch.com", mockFirst);
+                string mockNumber = String.Format("55512300{0}", i.ToString("D2"));
+                string mockPass = String.Format("Password{0}!", i.ToString("D2"));
+                var mock = await _userManager.FindByEmailAsync(mockMail);
+                if (mock == null)
                 {
-                    string mockFirst = String.Format("Mock{0}", i.ToString("D2"));
-                    string mockLast = String.Format("Data{0}", i.ToString("D2"));
-                    string mockMail = String.Format("{0}@RyanRauch.com", mockFirst);
-                    string mockNumber = String.Format("55512300{0}", i.ToString("D2"));
-                    string mockPass = String.Format("Password{0}!", i.ToString("D2"));
                     var user = new ApplicationUser
                     {
                         UserName = mockFirst + mockLast,
@@ -88,94 +107,15 @@ namespace CardinalWebApplication.Data
                 }
             }
 
-            //update current location data for mock users
-            /////////////////////////////////////////////
-
-            double latmin = mdata.Latitude - 0.01d;
-            double latmax = mdata.Latitude + 0.01d;
-            double lonmin = mdata.Longitude - 0.0025d;
-            double lonmax = mdata.Longitude + 0.0025d;
-
-            Random randomLat = new Random((int)DateTime.Now.Ticks);
-            Random randomLon = new Random((int)DateTime.Now.Ticks);
-            Random randomMin = new Random((int)DateTime.Now.Ticks);
-            var mockedUsers = await _context.ApplicationUsers
-                                            .Where(a => a.AccountType.Equals(AccountType.MockedData))
-                                            .ToListAsync();
-            foreach (var user in mockedUsers)
-            {
-                DateTime timeStamp = DateTime.Now.Subtract(TimeSpan.FromMinutes(randomMin.NextDouble() * 60));
-                double lat = randomLat.NextDouble() * (latmax - latmin) + latmin;
-                double lon = randomLon.NextDouble() * (lonmax - lonmin) + lonmin;
-                await _locationHistoryService.DeleteAllLocationHistoryAsync(user.Id);
-                await _locationHistoryService.CreateLocationHistoryAsync(user.Id, lat, lon, timeStamp);
-                _hexagonal.Initialize(lat, lon, _hexagonal.Layers[0]);
-                String layers = _hexagonal.AllLayersDelimited();
-                var currentLayer = await _context.CurrentLayers
-                                                 .FirstOrDefaultAsync(c => c.UserId.Equals(user.Id));
-                if (currentLayer == null)
-                {
-                    await _context.CurrentLayers.AddAsync(new CurrentLayer()
-                    {
-                        UserId = user.Id,
-                        LayersDelimited = layers,
-                        TimeStamp = timeStamp
-                    });
-                }
-                else
-                {
-                    currentLayer.LayersDelimited = layers;
-                    currentLayer.TimeStamp = timeStamp;
-                }
-            }
-            await _context.SaveChangesAsync();
-
-            //establish friend-requests for all of the mock users
-            //////////////////////////////////////////
-            var ryan = await _context.ApplicationUsers
-                                     .FirstOrDefaultAsync(a => a.Email.Equals(mdata.Email, StringComparison.OrdinalIgnoreCase));
-            if(ryan == null)
-            {
-                ryan = await _context.ApplicationUsers
-                                     .FirstOrDefaultAsync(a => a.Email.Equals("rauch.ryan@gmail.com", StringComparison.OrdinalIgnoreCase));
-            }
-            mockedUsers = await _context.ApplicationUsers
-                                        .Where(a => a.AccountType.Equals(AccountType.MockedData))
-                                        .ToListAsync();
-            foreach (var initiator in mockedUsers)
-            {
-                DateTime timeStamp = DateTime.Now.Subtract(TimeSpan.FromMinutes(randomMin.NextDouble() * 60));
-                var friendRequest = await _context.FriendRequests
-                                                  .FirstOrDefaultAsync(f => f.InitiatorId.Equals(initiator.Id)
-                                                                            && f.TargetId.Equals(ryan.Id));
-                if (friendRequest == null)
-                {
-                    await _context.FriendRequests
-                                  .AddAsync(new FriendRequest()
-                                  {
-                                      InitiatorId = initiator.Id,
-                                      TargetId = ryan.Id,
-                                      TimeStamp = DateTime.Now,
-                                      Type = FriendRequestType.Normal
-                                  });
-                }
-                else
-                {
-                    friendRequest.TimeStamp = timeStamp;
-                }
-            }
-            await _context.SaveChangesAsync();
-
-
             ///////////////////////////////////////////////////
             // Zone and ZoneShape Data
             ///////////////////////////////////////////////////
             // West 6th
             string zoneName = "West 6th";
             var currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
-            if(currentZone == null)
+            if (currentZone == null)
             {
-                currentZone = new Zone() { Description = zoneName, ARGBFill= "8095C6E4", Type=ZoneType.BarDistrict };
+                currentZone = new Zone() { Description = zoneName, ARGBFill = "8095C6E4", Type = ZoneType.BarDistrict };
                 await _context.Zones.AddAsync(currentZone);
                 await _context.SaveChangesAsync();
             }
@@ -194,7 +134,7 @@ namespace CardinalWebApplication.Data
             currentZone = await _context.Zones.FirstOrDefaultAsync(z => z.Description.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
             if (currentZone == null)
             {
-                currentZone = new Zone() { Description = zoneName, ARGBFill="80FF0000", Type=ZoneType.BarDistrict };
+                currentZone = new Zone() { Description = zoneName, ARGBFill = "80FF0000", Type = ZoneType.BarDistrict };
                 await _context.Zones.AddAsync(currentZone);
                 await _context.SaveChangesAsync();
             }
@@ -249,6 +189,97 @@ namespace CardinalWebApplication.Data
             _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.26522, Longitude = -97.743823 });
             _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.263367, Longitude = -97.744544 });
             _context.ZoneShapes.Add(new ZoneShape() { ParentZone = currentZone, ParentZoneId = currentZone.ZoneID, Order = ++i, Latitude = 30.264683, Longitude = -97.749128 });
+            await _context.SaveChangesAsync();
+
+
+            //update current location data for mock users
+            /////////////////////////////////////////////
+            double latmin = mdata.Latitude - 0.01d;
+            double latmax = mdata.Latitude + 0.01d;
+            double lonmin = mdata.Longitude - 0.0025d;
+            double lonmax = mdata.Longitude + 0.0025d;
+
+            Random randomLat = new Random((int)DateTime.Now.Ticks);
+            Random randomLon = new Random((int)DateTime.Now.Ticks);
+            Random randomMin = new Random((int)DateTime.Now.Ticks);
+            var mockedUsers = await _context.ApplicationUsers
+                                            .Where(a => a.AccountType.Equals(AccountType.MockedData))
+                                            .ToListAsync();
+            int mockLocationCount = 0;
+            foreach (var user in mockedUsers)
+            {
+                ++mockLocationCount;
+                DateTime timeStamp = DateTime.Now.Subtract(TimeSpan.FromMinutes(randomMin.NextDouble() * 60));
+                double lat = randomLat.NextDouble() * (latmax - latmin) + latmin;
+                double lon = randomLon.NextDouble() * (lonmax - lonmin) + lonmin;
+                if(mockLocationCount > NUMBEROFMOCKUSERS)
+                {
+                    GetRandomZoneCoordinates(out lat, out lon);
+                }
+                await _locationHistoryService.DeleteAllLocationHistoryAsync(user.Id);
+                await _locationHistoryService.CreateLocationHistoryAsync(user.Id, lat, lon, timeStamp);
+                _hexagonal.Initialize(lat, lon, _hexagonal.Layers[0]);
+                String layers = _hexagonal.AllLayersDelimited();
+                Guid currentZoneGuid = await _zoneBoundaryService.IsCoordinateInsideZone(ZoneType.BarDistrict,
+                                                                                         lat,
+                                                                                         lon);
+                string cZone = _zoneBoundaryService.IsEmptyZone(currentZoneGuid) ? null : currentZoneGuid.ToString();
+
+                var currentLayer = await _context.CurrentLayers
+                                                 .FirstOrDefaultAsync(c => c.UserId.Equals(user.Id));
+                if (currentLayer == null)
+                {
+                    await _context.CurrentLayers.AddAsync(new CurrentLayer()
+                    {
+                        UserId = user.Id,
+                        LayersDelimited = layers,
+                        TimeStamp = timeStamp,
+                        CurrentZoneId = cZone
+                    });
+                }
+                else
+                {
+                    currentLayer.LayersDelimited = layers;
+                    currentLayer.TimeStamp = timeStamp;
+                    currentLayer.CurrentZoneId = cZone;
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            //establish friend-requests for all of the mock users
+            //////////////////////////////////////////
+            var ryan = await _context.ApplicationUsers
+                                     .FirstOrDefaultAsync(a => a.Email.Equals(mdata.Email, StringComparison.OrdinalIgnoreCase));
+            if(ryan == null)
+            {
+                ryan = await _context.ApplicationUsers
+                                     .FirstOrDefaultAsync(a => a.Email.Equals("rauch.ryan@gmail.com", StringComparison.OrdinalIgnoreCase));
+            }
+            mockedUsers = await _context.ApplicationUsers
+                                        .Where(a => a.AccountType.Equals(AccountType.MockedData))
+                                        .ToListAsync();
+            foreach (var initiator in mockedUsers)
+            {
+                DateTime timeStamp = DateTime.Now.Subtract(TimeSpan.FromMinutes(randomMin.NextDouble() * 60));
+                var friendRequest = await _context.FriendRequests
+                                                  .FirstOrDefaultAsync(f => f.InitiatorId.Equals(initiator.Id)
+                                                                            && f.TargetId.Equals(ryan.Id));
+                if (friendRequest == null)
+                {
+                    await _context.FriendRequests
+                                  .AddAsync(new FriendRequest()
+                                  {
+                                      InitiatorId = initiator.Id,
+                                      TargetId = ryan.Id,
+                                      TimeStamp = DateTime.Now,
+                                      Type = FriendRequestType.Normal
+                                  });
+                }
+                else
+                {
+                    friendRequest.TimeStamp = timeStamp;
+                }
+            }
             await _context.SaveChangesAsync();
 
             ///////////////////////////////////////////////////
