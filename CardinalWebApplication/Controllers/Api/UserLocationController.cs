@@ -1,4 +1,5 @@
-﻿using CardinalLibrary.DataContracts;
+﻿using CardinalLibrary;
+using CardinalLibrary.DataContracts;
 using CardinalWebApplication.Data;
 using CardinalWebApplication.Extensions;
 using CardinalWebApplication.Models.DbContext;
@@ -130,8 +131,17 @@ namespace CardinalWebApplication.Controllers.Api
                                   currentLocationPost.Longitude, 
                                   _hexagonal.Layers[0]);
             String layers = _hexagonal.AllLayersDelimited();
-            String currentZone = await _zoneBoundaryService.IsCoordinateInsideZone(currentLocationPost.Latitude, 
-                                                                                   currentLocationPost.Longitude);
+
+            double testlat = 30.401875;
+            double testlon = -97.722668;
+            Guid testCurrentZoneGuid = await _zoneBoundaryService.IsCoordinateInsideZone(ZoneType.BarDistrict,
+                                                                         testlat,
+                                                                         testlon);
+
+            Guid currentZoneGuid = await _zoneBoundaryService.IsCoordinateInsideZone(ZoneType.BarDistrict,
+                                                                                     currentLocationPost.Latitude, 
+                                                                                     currentLocationPost.Longitude);
+            string currentZone = _zoneBoundaryService.IsEmptyZone(currentZoneGuid) ? currentZoneGuid.ToString() : null;
             var currentLayer = await _context.CurrentLayers
                                              .FirstOrDefaultAsync(c => c.UserId.Equals(gid));
             if (currentLayer == null)
