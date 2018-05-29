@@ -25,26 +25,40 @@ namespace CardinalWebApplication.Services
 
         public async Task<Guid> IsCoordinateInsideZone(ZoneType zType, double latitude, double longitude)
         {
-            var roughZones = await _context.Zones
+            var zonesWithType = await _context.Zones
                                            .Where(z => z.Type.Equals(zType))
-                                           .Where(z => PointRoughlyInsidePolygon(z.ZoneID, latitude, longitude))
                                            .ToListAsync();
-            if(roughZones == null || roughZones.Count == 0)
+            if(zonesWithType == null || zonesWithType.Count == 0)
             {
                 return Guid.Empty;
             }
-            foreach (var rough in roughZones)
+            foreach(var zone in zonesWithType)
             {
-                var zone = await _context.Zones
-                                         .Where(z => z.ZoneID.Equals(rough.ZoneID)
-                                                     && PointInsidePolygon(z.ZoneID, latitude, longitude))
-                                         .FirstOrDefaultAsync();
-                if (zone != null)
+                if(PointRoughlyInsidePolygon(zone.ZoneID, latitude, longitude))
                 {
-                    return zone.ZoneID;
+                    if(PointInsidePolygon(zone.ZoneID, latitude, longitude))
+                    {
+                        return zone.ZoneID;
+                    }
                 }
             }
             return Guid.Empty;
+            //if(roughZones == null || roughZones.Count == 0)
+            //{
+            //    return Guid.Empty;
+            //}
+            //foreach (var rough in roughZones)
+            //{
+            //    var zone = await _context.Zones
+            //                             .Where(z => z.ZoneID.Equals(rough.ZoneID)
+            //                                         && PointInsidePolygon(z.ZoneID, latitude, longitude))
+            //                             .FirstOrDefaultAsync();
+            //    if (zone != null)
+            //    {
+            //        return zone.ZoneID;
+            //    }
+            //}
+            //return Guid.Empty;
         }
 
         public bool PointRoughlyInsidePolygon(Guid zId, double latitude, double longitude)

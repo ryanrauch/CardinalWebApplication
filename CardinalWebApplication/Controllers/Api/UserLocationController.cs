@@ -132,16 +132,16 @@ namespace CardinalWebApplication.Controllers.Api
                                   _hexagonal.Layers[0]);
             String layers = _hexagonal.AllLayersDelimited();
 
-            double testlat = 30.401875;
-            double testlon = -97.722668;
-            Guid testCurrentZoneGuid = await _zoneBoundaryService.IsCoordinateInsideZone(ZoneType.BarDistrict,
-                                                                         testlat,
-                                                                         testlon);
+            //double testlat = 30.401875;
+            //double testlon = -97.722668;
+            //Guid testCurrentZoneGuid = await _zoneBoundaryService.IsCoordinateInsideZone(ZoneType.BarDistrict,
+            //                                                             testlat,
+            //                                                             testlon);
 
             Guid currentZoneGuid = await _zoneBoundaryService.IsCoordinateInsideZone(ZoneType.BarDistrict,
                                                                                      currentLocationPost.Latitude, 
                                                                                      currentLocationPost.Longitude);
-            string currentZone = _zoneBoundaryService.IsEmptyZone(currentZoneGuid) ? currentZoneGuid.ToString() : null;
+            string currentZone = _zoneBoundaryService.IsEmptyZone(currentZoneGuid) ? null : currentZoneGuid.ToString();
             var currentLayer = await _context.CurrentLayers
                                              .FirstOrDefaultAsync(c => c.UserId.Equals(gid));
             if (currentLayer == null)
@@ -158,6 +158,7 @@ namespace CardinalWebApplication.Controllers.Api
             {
                 currentLayer.LayersDelimited = layers;
                 currentLayer.TimeStamp = timeStamp;
+                currentLayer.CurrentZoneId = currentZone;
             }
             await _context.SaveChangesAsync();
             return Ok();
