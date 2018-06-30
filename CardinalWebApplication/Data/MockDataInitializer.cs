@@ -52,11 +52,17 @@ namespace CardinalWebApplication.Data
 
             if (mdata == null)
             {
-                mdata = new MockDataInitializeContract()
+                //mdata = new MockDataInitializeContract() //kenzie
+                //{
+                //    Email = "rauch.ryan@gmail.com",
+                //    Latitude = 30.3986877,
+                //    Longitude = -97.72359399999999
+                //};
+                mdata = new MockDataInitializeContract() // dogwood
                 {
                     Email = "rauch.ryan@gmail.com",
-                    Latitude = 30.3986877,
-                    Longitude = -97.72359399999999
+                    Latitude = 30.401916,
+                    Longitude = -97.722651
                 };
             }
 
@@ -194,10 +200,10 @@ namespace CardinalWebApplication.Data
 
             //update current location data for mock users
             /////////////////////////////////////////////
-            double latmin = mdata.Latitude - 0.01d;
-            double latmax = mdata.Latitude + 0.01d;
-            double lonmin = mdata.Longitude - 0.0025d;
-            double lonmax = mdata.Longitude + 0.0025d;
+            double latmin = mdata.Latitude - 0.0025d;
+            double latmax = mdata.Latitude + 0.0025d;
+            double lonmin = mdata.Longitude - 0.0012d;
+            double lonmax = mdata.Longitude + 0.0012d;
 
             Random randomLat = new Random((int)DateTime.Now.Ticks);
             Random randomLon = new Random((int)DateTime.Now.Ticks);
