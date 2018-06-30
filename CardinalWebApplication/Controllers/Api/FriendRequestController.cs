@@ -91,7 +91,7 @@ namespace CardinalWebApplication.Controllers.Api
 
         // POST: api/FriendRequest
         [HttpPost]
-        public async Task<IActionResult> PostFriendRequest([FromBody] FriendRequest friendRequest)
+        public async Task<IActionResult> PostFriendRequest([FromBody] FriendRequestContract friendRequestContract)
         {
             //TODO: create DataContract
             if (!ModelState.IsValid)
@@ -99,41 +99,48 @@ namespace CardinalWebApplication.Controllers.Api
                 return BadRequest(ModelState);
             }
             var userId = _httpContextAccessor.CurrentUserId();
-            if (!friendRequest.InitiatorId.Equals(userId))
+            if (!friendRequestContract.InitiatorId.Equals(userId))
             {
                 return Unauthorized();
             }
-            if (friendRequest.InitiatorId.Equals(friendRequest.TargetId))
+            if (friendRequestContract.InitiatorId.Equals(friendRequestContract.TargetId))
             {
-                return BadRequest(friendRequest.TargetId);
+                return BadRequest(friendRequestContract.TargetId);
             }
             var userExists = await _context.ApplicationUsers
-                                           .AnyAsync(a => a.Id.Equals(friendRequest.TargetId));
+                                           .AnyAsync(a => a.Id.Equals(friendRequestContract.TargetId));
             var blocked = await _context.FriendRequests
-                                        .AnyAsync(f => f.InitiatorId.Equals(friendRequest.TargetId)
+                                        .AnyAsync(f => f.InitiatorId.Equals(friendRequestContract.TargetId)
                                                        && f.TargetId.Equals(userId)
                                                        && f.Type.HasValue
                                                        && f.Type.Value.Equals(FriendRequestType.Blocked));
             if (!userExists || blocked)
             {
-                return BadRequest(friendRequest.TargetId);
+                return BadRequest(friendRequestContract.TargetId);
             }
             var friend = await _context.FriendRequests
                                        .SingleOrDefaultAsync(f => f.InitiatorId.Equals(userId)
-                                                                  && f.TargetId.Equals(friendRequest.TargetId));
+                                                                  && f.TargetId.Equals(friendRequestContract.TargetId));
             DateTime timeStamp = DateTime.Now.ToUniversalTime();
             if (friend != null)
             {
-                friend.Type = friendRequest.Type;
+                friend.Type = friendRequestContract.Type;
                 friend.TimeStamp = timeStamp;
             }
             else
             {
-                friendRequest.TimeStamp = timeStamp;
-                _context.FriendRequests.Add(friendRequest);
+                FriendRequest fr = new FriendRequest()
+                {
+                    InitiatorId = userId,
+                    TargetId = friendRequestContract.TargetId,
+                    TimeStamp = timeStamp,
+                    Type = friendRequestContract.Type
+                };
+                await _context.FriendRequests.AddAsync(fr);
             }
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetFriendRequest", new { id = friendRequest.TargetId }, friendRequest);
+            //return CreatedAtAction("GetFriendRequest", new { id = friendRequestContract.TargetId }, friendRequest);
+            return Ok();
         }
 
         // DELETE: api/FriendRequests/5
