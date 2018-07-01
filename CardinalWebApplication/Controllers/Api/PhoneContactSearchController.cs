@@ -43,7 +43,12 @@ namespace CardinalWebApplication.Controllers.Api
             }
             if(id.Length != 10)
             {
-                return BadRequest(id);
+                return Ok(new PhoneContactSearchContract()
+                                {
+                                    Found = false,
+                                    UserName = String.Empty,
+                                    UserId = String.Empty
+                                });
             }
             var userId = _httpContextAccessor.CurrentUserId();
             var userExists = await _context.ApplicationUsers
@@ -59,14 +64,16 @@ namespace CardinalWebApplication.Controllers.Api
                 return Ok(new PhoneContactSearchContract()
                                 {
                                     Found = false,
-                                    UserName = String.Empty
+                                    UserName = String.Empty,
+                                    UserId = String.Empty
                                 });
             }
             var phoneUsername = await _context.ApplicationUsers.FirstAsync(a => a.PhoneNumber.Equals(id));
             var res = new PhoneContactSearchContract()
                             {
                                 Found = true,
-                                UserName = phoneUsername.UserName
+                                UserName = phoneUsername.UserName,
+                                UserId = phoneUsername.Id
                             };
             return Ok(res);
         }
